@@ -74,6 +74,7 @@ def post_delete(post_id):
     return redirect(url_for("post_list"))
 
 
+db.init_db()
+
 if __name__ == "__main__":
-    db.init_db()
     app.run(debug=True)

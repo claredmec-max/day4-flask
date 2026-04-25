@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: day4-flask
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
