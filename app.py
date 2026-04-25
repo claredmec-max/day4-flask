@@ -43,6 +43,37 @@ def post_write():
     return render_template("write.html")
 
 
+@app.route("/edit/<int:post_id>", methods=["GET", "POST"])
+def post_edit(post_id):
+    database = db.get_db()
+    post = database.execute(
+        "SELECT id, title, content, created_at FROM posts WHERE id = ?",
+        (post_id,),
+    ).fetchone()
+    if not post:
+        database.close()
+        return redirect(url_for("post_list"))
+    if request.method == "POST":
+        database.execute(
+            "UPDATE posts SET title = ?, content = ? WHERE id = ?",
+            (request.form["title"], request.form["content"], post_id),
+        )
+        database.commit()
+        database.close()
+        return redirect(url_for("post_detail", post_id=post_id))
+    database.close()
+    return render_template("write.html", post=post)
+
+
+@app.route("/delete/<int:post_id>", methods=["POST"])
+def post_delete(post_id):
+    database = db.get_db()
+    database.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    database.commit()
+    database.close()
+    return redirect(url_for("post_list"))
+
+
 if __name__ == "__main__":
     db.init_db()
     app.run(debug=True)

@@ -21,8 +21,18 @@
         {% endfor %}
     </div>
 
-    <!-- Back -->
-    <div class="pt-12 border-t border-[#EADDCA] mt-16 pb-24">
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-12 border-t border-[#EADDCA] mt-16 pb-24">
+        <div class="flex gap-4 w-full sm:w-auto">
+            <a href="/edit/{{ post.id }}" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#A65D50] text-white px-8 py-3 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all active:scale-95 shadow-md">
+                <span class="material-symbols-outlined" style="font-size:20px">edit_note</span> 수정
+            </a>
+            <form action="/delete/{{ post.id }}" method="POST" class="flex-1 sm:flex-none" onsubmit="return confirm('정말 삭제할까요?')">
+                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-[#F5F5DC] text-[#8E735B] border border-transparent hover:border-[#A65D50] px-8 py-3 rounded-lg font-label-md text-label-md transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-error" style="font-size:20px">delete</span> 삭제
+                </button>
+            </form>
+        </div>
         <a href="/" class="flex items-center gap-2 text-[#8E735B] hover:text-[#A65D50] font-label-md text-label-md transition-colors">
             <span class="material-symbols-outlined">arrow_back</span> 목록으로
         </a>
