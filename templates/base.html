@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{% block title %}BlogBoard{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "inverse-surface": "#303221",
+                "surface-dim": "#dbdcc3",
+                "on-surface-variant": "#534340",
+                "on-secondary-fixed": "#291806",
+                "tertiary": "#645647",
+                "surface-container": "#efefd7",
+                "primary-container": "#a65d50",
+                "on-error-container": "#93000a",
+                "on-secondary": "#ffffff",
+                "primary-fixed": "#ffdad4",
+                "on-tertiary-fixed-variant": "#524436",
+                "surface": "#fbfbe2",
+                "surface-container-high": "#eaead1",
+                "surface-bright": "#fbfbe2",
+                "primary": "#89453a",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-container": "#795f49",
+                "on-primary-fixed-variant": "#723429",
+                "outline": "#86736f",
+                "tertiary-container": "#7e6e5e",
+                "on-background": "#1b1d0e",
+                "primary-fixed-dim": "#ffb4a6",
+                "on-tertiary-container": "#fff4ed",
+                "on-tertiary": "#ffffff",
+                "error-container": "#ffdad6",
+                "surface-container-low": "#f5f5dc",
+                "secondary": "#725a43",
+                "surface-tint": "#8f4b3f",
+                "inverse-primary": "#ffb4a6",
+                "on-primary-fixed": "#3a0a04",
+                "on-primary-container": "#fff5f3",
+                "surface-container-highest": "#e4e4cc",
+                "secondary-fixed-dim": "#e1c1a5",
+                "on-surface": "#1b1d0e",
+                "secondary-container": "#ffdcbf",
+                "on-primary": "#ffffff",
+                "on-tertiary-fixed": "#241a0e",
+                "inverse-on-surface": "#f2f2d9",
+                "secondary-fixed": "#ffdcbf",
+                "tertiary-fixed-dim": "#d7c3b0",
+                "outline-variant": "#d9c1bd",
+                "on-secondary-fixed-variant": "#59422d",
+                "error": "#ba1a1a",
+                "surface-variant": "#e4e4cc",
+                "tertiary-fixed": "#f4dfcb",
+                "on-error": "#ffffff",
+                "background": "#fbfbe2"
+            },
+            borderRadius: {
+                DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"
+            },
+            spacing: {
+                md: "16px", "container-max": "720px", base: "4px", sm: "8px",
+                xs: "4px", lg: "24px", gutter: "20px", xl: "32px"
+            },
+            fontFamily: {
+                "headline-xl": ["Be Vietnam Pro"], "label-sm": ["Be Vietnam Pro"],
+                "label-md": ["Be Vietnam Pro"], "headline-md": ["Be Vietnam Pro"],
+                "body-lg": ["Be Vietnam Pro"], "headline-lg": ["Be Vietnam Pro"],
+                "body-md": ["Be Vietnam Pro"]
+            },
+            fontSize: {
+                "headline-xl": ["40px", {lineHeight:"1.2", letterSpacing:"-0.02em", fontWeight:"700"}],
+                "label-sm": ["12px", {lineHeight:"1.4", fontWeight:"600"}],
+                "label-md": ["14px", {lineHeight:"1.4", letterSpacing:"0.01em", fontWeight:"500"}],
+                "headline-md": ["24px", {lineHeight:"1.3", fontWeight:"600"}],
+                "body-lg": ["18px", {lineHeight:"1.6", fontWeight:"400"}],
+                "headline-lg": ["32px", {lineHeight:"1.25", letterSpacing:"-0.01em", fontWeight:"600"}],
+                "body-md": ["16px", {lineHeight:"1.6", fontWeight:"400"}]
+            }
+        }
+    }
+}
+</script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block; line-height: 1; text-transform: none;
+        letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr;
+    }
+    body { background-color: #FAF9F6; font-family: 'Be Vietnam Pro', sans-serif; color: #1b1d0e; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+<!-- TopAppBar -->
+<header class="bg-[#F5F5DC] border-b border-[#EADDCA] shadow-[0px_4px_12px_rgba(60,52,49,0.05)] sticky top-0 w-full z-50">
+<div class="flex justify-between items-center max-w-[720px] mx-auto px-6 py-4">
+    <a href="/" class="text-xl font-bold tracking-tighter text-[#A65D50] font-headline-md">BlogBoard</a>
+    <nav class="hidden md:flex gap-6 items-center">
+        <a class="text-sm tracking-tight text-[#A65D50] font-semibold border-b-2 border-[#A65D50] pb-1" href="/">List</a>
+        <a class="text-sm tracking-tight text-[#8E735B] hover:text-[#A65D50] transition-colors" href="#">Archive</a>
+    </nav>
+    <div class="flex items-center gap-3">
+        <button class="material-symbols-outlined text-[#8E735B] hover:bg-[#A65D50]/5 p-2 rounded-full transition-all duration-200 active:scale-95">search</button>
+        <a href="/write" class="bg-[#A65D50] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:brightness-90 transition-all active:scale-95">Write</a>
+    </div>
+</div>
+</header>
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer class="w-full mt-auto border-t border-[#EADDCA]/30">
+<div class="max-w-[720px] mx-auto py-12 px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-xs uppercase tracking-widest text-[#8E735B]">&copy; 2024 BlogBoard. Curated with intentionality.</div>
+    <div class="flex gap-6">
+        <a class="text-xs uppercase tracking-widest text-[#8E735B] hover:text-[#A65D50] underline underline-offset-4" href="#">Privacy</a>
+        <a class="text-xs uppercase tracking-widest text-[#8E735B] hover:text-[#A65D50] underline underline-offset-4" href="#">Terms</a>
+        <a class="text-xs uppercase tracking-widest text-[#8E735B] hover:text-[#A65D50] underline underline-offset-4" href="#">RSS Feed</a>
+    </div>
+</div>
+</footer>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full rounded-t-2xl z-50 bg-[#F5F5DC]/95 backdrop-blur-md border-t border-[#EADDCA] shadow-[0px_-4px_12px_rgba(60,52,49,0.05)] md:hidden">
+<div class="flex justify-around items-center h-16 px-4">
+    <a href="/" class="flex flex-col items-center justify-center bg-[#A65D50]/10 text-[#A65D50] rounded-xl px-4 py-1 active:scale-90 duration-150">
+        <span class="material-symbols-outlined">grid_view</span>
+        <span class="text-[10px] font-medium">Feed</span>
+    </a>
+    <a href="/write" class="flex flex-col items-center justify-center text-[#8E735B] opacity-70 hover:opacity-100 active:scale-90 duration-150">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span class="text-[10px] font-medium">Write</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-[#8E735B] opacity-70 hover:opacity-100 active:scale-90 duration-150">
+        <span class="material-symbols-outlined">bookmarks</span>
+        <span class="text-[10px] font-medium">Library</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-[#8E735B] opacity-70 hover:opacity-100 active:scale-90 duration-150">
+        <span class="material-symbols-outlined">person</span>
+        <span class="text-[10px] font-medium">Profile</span>
+    </a>
+</div>
+</nav>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Write — BlogBoard{% endblock %}
+
+{% block content %}
+<main class="flex-grow max-w-[720px] w-full mx-auto px-6 pt-12 pb-24">
+<!-- Header -->
+<div class="mb-10 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <a href="/" class="p-2 -ml-2 text-[#8E735B] hover:bg-[#A65D50]/5 rounded-full transition-all active:scale-90">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <span class="font-label-md text-[#8E735B] tracking-widest uppercase">글쓰기</span>
+    </div>
+</div>
+
+<!-- Editor -->
+<form action="/write" method="POST">
+<section class="bg-[#F5F5DC] rounded-xl shadow-[0px_4px_12px_rgba(60,52,49,0.05)] border border-[#EADDCA]/50 p-8 md:p-12">
+    <!-- Title -->
+    <div class="mb-8">
+        <input name="title" class="w-full bg-transparent border-none p-0 text-headline-lg font-headline-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/30 transition-all" placeholder="제목을 입력하세요..." type="text" required/>
+        <div class="h-px w-16 bg-[#A65D50]/20 mt-4"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative">
+        <textarea name="content" class="w-full min-h-[400px] bg-transparent border-none p-0 text-body-lg font-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/30 resize-none leading-relaxed" placeholder="이야기를 시작하세요..." required></textarea>
+    </div>
+</section>
+
+<!-- Actions -->
+<div class="mt-12 flex justify-end items-center gap-6">
+    <button type="submit" class="bg-[#A65D50] text-white px-10 py-4 rounded-xl font-headline-md shadow-lg shadow-[#A65D50]/20 hover:brightness-95 hover:-translate-y-0.5 active:scale-95 transition-all">발행하기</button>
+</div>
+</form>
+</main>
+{% endblock %}

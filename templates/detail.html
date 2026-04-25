@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — BlogBoard{% endblock %}
+
+{% block content %}
+<main class="max-w-[720px] mx-auto px-6 py-12 min-h-screen">
+<article class="space-y-8">
+    <div class="space-y-4">
+        <div class="flex items-center gap-2">
+            <span class="bg-[#A65D50]/10 text-[#A65D50] px-3 py-1 rounded-full text-label-sm font-label-sm">Post</span>
+            <span class="text-[#8E735B] text-label-sm font-label-sm">{{ post.created_at[:10] }}</span>
+        </div>
+        <h1 class="font-headline-xl text-headline-xl text-on-surface leading-tight">{{ post.title }}</h1>
+    </div>
+
+    <!-- Post Body -->
+    <div class="font-body-lg text-body-lg text-on-surface space-y-6 leading-relaxed">
+        {% for paragraph in post.content.split('\n\n') %}
+        {% if paragraph %}
+        <p>{{ paragraph }}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Back -->
+    <div class="pt-12 border-t border-[#EADDCA] mt-16 pb-24">
+        <a href="/" class="flex items-center gap-2 text-[#8E735B] hover:text-[#A65D50] font-label-md text-label-md transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span> 목록으로
+        </a>
+    </div>
+</article>
+</main>
+{% endblock %}
