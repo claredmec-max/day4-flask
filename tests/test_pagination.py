@@ -169,3 +169,64 @@ def test_pagination_links_preserve_query_string(tmp_path):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "?q=FindMe&page=2" in html
+
+
+def test_sort_default_is_newest(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [
+        ("Gamma", "body"),
+        ("Alpha", "body"),
+        ("Beta", "body"),
+    ]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    response = client.get("/")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+
+    assert "Beta" in html
+    assert "Alpha" in html
+
+
+def test_sort_oldest_changes_ordering(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [("First", "body"), ("Second", "body"), ("Third", "body")]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    newest = client.get("/?sort=new").get_data(as_text=True)
+    oldest = client.get("/?sort=old").get_data(as_text=True)
+
+    assert "First" in newest and "First" in oldest
+    assert "Third" in newest and "Third" in oldest
+    assert newest != oldest
+
+
+def test_sort_title_orders_by_title_asc(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [("다람쥐", "body"), ("가방", "body"), ("나무", "body")]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    html = client.get("/?sort=title").get_data(as_text=True)
+
+    assert "가방" in html
+    assert "나무" in html
+    assert "다람쥐" in html
