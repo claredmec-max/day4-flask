@@ -8,7 +8,17 @@ app = Flask(__name__)
 def post_list():
     page_raw = request.args.get("page", "1")
     q = request.args.get("q", "").strip()
-    is_search = bool(q)
+    sort = request.args.get("sort", "new")
+
+    if sort not in {"new", "old", "title"}:
+        sort = "new"
+
+    order_by_map = {
+        "new": "created_at DESC, id DESC",
+        "old": "created_at ASC, id ASC",
+        "title": "title ASC, id ASC",
+    }
+    order_by_sql = order_by_map[sort]
 
     try:
         page = int(page_raw)
@@ -21,14 +31,17 @@ def post_list():
     per_page = 10
     database = db.get_db()
 
-    if is_search:
-        search_term = f"%{q}%"
-        total_count = database.execute(
-            "SELECT COUNT(*) FROM posts WHERE title LIKE ? OR content LIKE ?",
-            (search_term, search_term),
-        ).fetchone()[0]
-    else:
-        total_count = database.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+    where_sql = ""
+    where_params = ()
+    if q:
+        where_sql = " WHERE title LIKE ? OR content LIKE ?"
+        like = f"%{q}%"
+        where_params = (like, like)
+
+    total_count = database.execute(
+        "SELECT COUNT(*) FROM posts" + where_sql,
+        where_params,
+    ).fetchone()[0]
 
     total_pages = max(1, (total_count + per_page - 1) // per_page)
 
@@ -36,16 +49,14 @@ def post_list():
         page = total_pages
 
     offset = (page - 1) * per_page
-    if is_search:
-        posts = database.execute(
-            "SELECT id, title, content, created_at FROM posts WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
-            (search_term, search_term, per_page, offset),
-        ).fetchall()
-    else:
-        posts = database.execute(
-            "SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
-            (per_page, offset),
-        ).fetchall()
+    posts = database.execute(
+        "SELECT id, title, content, created_at FROM posts"
+        + where_sql
+        + " ORDER BY "
+        + order_by_sql
+        + " LIMIT ? OFFSET ?",
+        where_params + (per_page, offset),
+    ).fetchall()
     database.close()
 
     return render_template(
@@ -58,7 +69,8 @@ def post_list():
         prev_page=page - 1,
         next_page=page + 1,
         q=q,
-        is_search=is_search,
+        sort=sort,
+        is_search=bool(q),
     )
 
 

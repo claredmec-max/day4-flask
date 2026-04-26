@@ -168,7 +168,7 @@ def test_pagination_links_preserve_query_string(tmp_path):
 
     assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert "?q=FindMe&page=2" in html
+    assert "?q=FindMe&amp;sort=new&amp;page=2" in html
 
 
 def test_sort_default_is_newest(tmp_path):
@@ -191,8 +191,7 @@ def test_sort_default_is_newest(tmp_path):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
-    assert "Beta" in html
-    assert "Alpha" in html
+    assert html.index("Beta") < html.index("Alpha") < html.index("Gamma")
 
 
 def test_sort_oldest_changes_ordering(tmp_path):
@@ -209,9 +208,26 @@ def test_sort_oldest_changes_ordering(tmp_path):
     newest = client.get("/?sort=new").get_data(as_text=True)
     oldest = client.get("/?sort=old").get_data(as_text=True)
 
-    assert "First" in newest and "First" in oldest
-    assert "Third" in newest and "Third" in oldest
-    assert newest != oldest
+    assert newest.index("Third") < newest.index("Second") < newest.index("First")
+    assert oldest.index("First") < oldest.index("Second") < oldest.index("Third")
+
+
+def test_invalid_sort_falls_back_to_newest(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [("First", "body"), ("Second", "body"), ("Third", "body")]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    invalid = client.get("/?sort=invalid").get_data(as_text=True)
+    newest = client.get("/?sort=new").get_data(as_text=True)
+
+    assert invalid.index("Third") < invalid.index("Second") < invalid.index("First")
+    assert invalid == newest
 
 
 def test_sort_title_orders_by_title_asc(tmp_path):
@@ -227,6 +243,70 @@ def test_sort_title_orders_by_title_asc(tmp_path):
     client = app_module.app.test_client()
     html = client.get("/?sort=title").get_data(as_text=True)
 
-    assert "가방" in html
-    assert "나무" in html
-    assert "다람쥐" in html
+    assert html.index("가방") < html.index("나무") < html.index("다람쥐")
+
+
+def test_sort_dropdown_exists_and_auto_submits(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+    _seed_posts(3)
+
+    client = app_module.app.test_client()
+    html = client.get("/").get_data(as_text=True)
+
+    assert 'name="sort"' in html
+    assert 'onchange="this.form.submit()"' in html
+    assert "최신순" in html
+    assert "오래된순" in html
+    assert "제목순" in html
+    assert '<option value="new" selected>최신순</option>' in html
+
+
+def test_sort_dropdown_selected_state_changes_with_query(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+    _seed_posts(3)
+
+    client = app_module.app.test_client()
+    old_html = client.get("/?sort=old").get_data(as_text=True)
+    title_html = client.get("/?sort=title").get_data(as_text=True)
+
+    assert '<option value="old" selected>오래된순</option>' in old_html
+    assert '<option value="title" selected>제목순 (가나다)</option>' in title_html
+
+
+def test_pagination_links_keep_q_and_sort(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [(f"Find {i}", "body") for i in range(1, 13)]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    html = client.get("/?q=Find&sort=title&page=1").get_data(as_text=True)
+
+    assert "?q=Find&amp;sort=title&amp;page=2" in html
+
+
+def test_search_sort_and_pagination_work_together(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [(f"Python {i:02d}", "match") for i in range(1, 13)]
+    rows += [("Zebra", "nope"), ("Apple", "nope")]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    html = client.get("/?q=Python&sort=title&page=2").get_data(as_text=True)
+
+    assert "2 / 2" in html
+    assert html.index("Python 11") < html.index("Python 12")
+    assert "Python 10" not in html
+    assert "Zebra" not in html
+    assert "Apple" not in html
