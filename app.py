@@ -7,6 +7,9 @@ app = Flask(__name__)
 @app.route("/")
 def post_list():
     page_raw = request.args.get("page", "1")
+    q = request.args.get("q", "").strip()
+    is_search = bool(q)
+
     try:
         page = int(page_raw)
     except ValueError:
@@ -18,18 +21,34 @@ def post_list():
     per_page = 10
     database = db.get_db()
 
-    total_count = database.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+    if is_search:
+        search_term = f"%{q}%"
+        total_count = database.execute(
+            "SELECT COUNT(*) FROM posts WHERE title LIKE ? OR content LIKE ?",
+            (search_term, search_term),
+        ).fetchone()[0]
+    else:
+        total_count = database.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+
     total_pages = max(1, (total_count + per_page - 1) // per_page)
 
     if page > total_pages:
         page = total_pages
 
     offset = (page - 1) * per_page
-    posts = database.execute(
-        "SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
-        (per_page, offset),
-    ).fetchall()
+    if is_search:
+        posts = database.execute(
+            "SELECT id, title, content, created_at FROM posts WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
+            (search_term, search_term, per_page, offset),
+        ).fetchall()
+    else:
+        posts = database.execute(
+            "SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
+            (per_page, offset),
+        ).fetchall()
     database.close()
+
+    query_suffix = f"&q={q}" if is_search else ""
 
     return render_template(
         "list.html",
@@ -38,8 +57,10 @@ def post_list():
         total_pages=total_pages,
         has_prev=page > 1,
         has_next=page < total_pages,
-        prev_page=page - 1,
-        next_page=page + 1,
+        prev_page=f"{page - 1}{query_suffix}",
+        next_page=f"{page + 1}{query_suffix}",
+        q=q,
+        is_search=is_search,
     )
 
 
