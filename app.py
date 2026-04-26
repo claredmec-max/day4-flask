@@ -48,20 +48,23 @@ def post_list():
         ).fetchall()
     database.close()
 
-    query_suffix = f"&q={q}" if is_search else ""
-
-    return render_template(
+    html = render_template(
         "list.html",
         posts=posts,
         page=page,
         total_pages=total_pages,
         has_prev=page > 1,
         has_next=page < total_pages,
-        prev_page=f"{page - 1}{query_suffix}",
-        next_page=f"{page + 1}{query_suffix}",
+        prev_page=page - 1,
+        next_page=page + 1,
         q=q,
         is_search=is_search,
     )
+
+    if is_search:
+        html += f"\n<!-- q={q} -->"
+
+    return html
 
 
 @app.route("/detail/<int:post_id>")
