@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request
-from datetime import datetime
 import database as db
 
 app = Flask(__name__)
@@ -7,12 +6,41 @@ app = Flask(__name__)
 
 @app.route("/")
 def post_list():
+    page_raw = request.args.get("page", "1")
+    try:
+        page = int(page_raw)
+    except ValueError:
+        page = 1
+
+    if page < 1:
+        page = 1
+
+    per_page = 10
     database = db.get_db()
+
+    total_count = database.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+
+    if page > total_pages:
+        page = total_pages
+
+    offset = (page - 1) * per_page
     posts = database.execute(
-        "SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC"
+        "SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
+        (per_page, offset),
     ).fetchall()
     database.close()
-    return render_template("list.html", posts=posts)
+
+    return render_template(
+        "list.html",
+        posts=posts,
+        page=page,
+        total_pages=total_pages,
+        has_prev=page > 1,
+        has_next=page < total_pages,
+        prev_page=page - 1,
+        next_page=page + 1,
+    )
 
 
 @app.route("/detail/<int:post_id>")

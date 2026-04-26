@@ -50,5 +50,21 @@
 </div>
 {% endfor %}
 </div>
+
+<nav class="mt-12 flex items-center justify-center gap-4" aria-label="Pagination">
+    {% if has_prev %}
+    <a href="/?page={{ prev_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">이전</a>
+    {% else %}
+    <span id="prev-disabled" class="px-4 py-2 rounded-lg bg-surface-container-low text-outline opacity-60 cursor-not-allowed" aria-disabled="true">이전</span>
+    {% endif %}
+
+    <span class="font-label-md text-label-md text-outline">{{ page }} / {{ total_pages }}</span>
+
+    {% if has_next %}
+    <a href="/?page={{ next_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">다음</a>
+    {% else %}
+    <span id="next-disabled" class="px-4 py-2 rounded-lg bg-surface-container-low text-outline opacity-60 cursor-not-allowed" aria-disabled="true">다음</span>
+    {% endif %}
+</nav>
 </main>
 {% endblock %}
