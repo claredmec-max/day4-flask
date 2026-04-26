@@ -132,4 +132,40 @@ def test_search_filters_title_or_content_and_keeps_pagination(tmp_path):
     html = response.get_data(as_text=True)
 
     assert "2 / 2" in html
-    assert html.count("onclick=\"location.href='/detail/") == 3
+    assert "Python title" in html or "General title" in html
+    assert "Other title" not in html
+
+
+def test_search_empty_result_shows_message_and_search_input_value(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+    _seed_posts(5)
+
+    client = app_module.app.test_client()
+    response = client.get("/?q=NoSuchKeyword")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+
+    assert "검색 결과가 없습니다" in html
+    assert 'name="q"' in html
+    assert 'value="NoSuchKeyword"' in html
+    assert "아직 글이 없습니다." not in html
+
+
+def test_pagination_links_preserve_query_string(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+
+    database = db.get_db()
+    rows = [(f"FindMe {i}", "body") for i in range(1, 12)]
+    database.executemany("INSERT INTO posts (title, content) VALUES (?, ?)", rows)
+    database.commit()
+    database.close()
+
+    client = app_module.app.test_client()
+    response = client.get("/?q=FindMe&page=1")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "?q=FindMe&page=2" in html

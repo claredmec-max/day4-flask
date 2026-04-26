@@ -9,6 +9,22 @@
     <p class="font-body-md text-body-md text-secondary opacity-80">A space for intentional reading and quiet reflection.</p>
 </section>
 
+<form method="get" action="/" class="mb-8 flex items-center gap-3">
+    <input
+        type="text"
+        name="q"
+        value="{{ q }}"
+        placeholder="검색어를 입력하세요"
+        class="flex-1 rounded-xl border border-outline-variant bg-surface px-4 py-3 font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/40"
+    />
+    <button
+        type="submit"
+        class="shrink-0 rounded-xl bg-[#A65D50] text-white px-4 py-3 font-label-md hover:brightness-95 transition-all"
+    >
+        🔍 검색
+    </button>
+</form>
+
 <!-- Post List -->
 <div class="grid grid-cols-1 gap-8">
 {% for post in posts %}
@@ -45,15 +61,19 @@
 {% else %}
 <div class="text-center py-20">
     <span class="material-symbols-outlined text-[#EADDCA]" style="font-size:64px">edit_note</span>
+    {% if is_search %}
+    <p class="font-body-lg text-body-lg text-outline mt-4">검색 결과가 없습니다</p>
+    {% else %}
     <p class="font-body-lg text-body-lg text-outline mt-4">아직 글이 없습니다.</p>
     <a href="/write" class="inline-block mt-6 bg-[#A65D50] text-white px-8 py-3 rounded-xl font-label-md text-label-md hover:brightness-95 transition-all">첫 글 쓰기</a>
+    {% endif %}
 </div>
 {% endfor %}
 </div>
 
 <nav class="mt-12 flex items-center justify-center gap-4" aria-label="Pagination">
     {% if has_prev %}
-    <a href="/?page={{ prev_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">이전</a>
+    <a href="/?q={{ q }}&page={{ prev_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">이전</a>
     {% else %}
     <span id="prev-disabled" class="px-4 py-2 rounded-lg bg-surface-container-low text-outline opacity-60 cursor-not-allowed" aria-disabled="true">이전</span>
     {% endif %}
@@ -61,7 +81,7 @@
     <span class="font-label-md text-label-md text-outline">{{ page }} / {{ total_pages }}</span>
 
     {% if has_next %}
-    <a href="/?page={{ next_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">다음</a>
+    <a href="/?q={{ q }}&page={{ next_page }}" class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:brightness-95 transition-all">다음</a>
     {% else %}
     <span id="next-disabled" class="px-4 py-2 rounded-lg bg-surface-container-low text-outline opacity-60 cursor-not-allowed" aria-disabled="true">다음</span>
     {% endif %}
