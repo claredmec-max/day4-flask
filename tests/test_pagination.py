@@ -24,7 +24,9 @@ def test_list_first_page_shows_10_posts_and_prev_disabled(tmp_path):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
-    assert html.count("onclick=\"location.href='/detail/") == 10
+    assert "Post 25" in html
+    assert "Post 16" in html
+    assert "Post 15" not in html
     assert "1 / 3" in html
     assert 'id="prev-disabled"' in html
     assert ">다음<" in html
@@ -41,8 +43,28 @@ def test_invalid_page_defaults_to_first_page(tmp_path):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
+    assert "Post 12" in html
+    assert "Post 3" in html
+    assert "Post 2" not in html
     assert "1 / 2" in html
-    assert html.count("onclick=\"location.href='/detail/") == 10
+    assert 'id="prev-disabled"' in html
+
+
+def test_negative_page_clamps_to_first_page(tmp_path):
+    db.DB_PATH = str(tmp_path / "test.db")
+    db.init_db()
+    _seed_posts(12)
+
+    client = app_module.app.test_client()
+    response = client.get("/?page=-7")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+
+    assert "Post 12" in html
+    assert "Post 3" in html
+    assert "Post 2" not in html
+    assert "1 / 2" in html
     assert 'id="prev-disabled"' in html
 
 
@@ -57,8 +79,10 @@ def test_page_above_total_clamps_to_last_page_and_disables_next(tmp_path):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
+    assert "Post 2" in html
+    assert "Post 1" in html
+    assert "Post 3" not in html
     assert "2 / 2" in html
-    assert html.count("onclick=\"location.href='/detail/") == 2
     assert 'id="next-disabled"' in html
 
 
