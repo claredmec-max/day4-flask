@@ -48,7 +48,7 @@ def post_list():
         ).fetchall()
     database.close()
 
-    html = render_template(
+    return render_template(
         "list.html",
         posts=posts,
         page=page,
@@ -60,11 +60,6 @@ def post_list():
         q=q,
         is_search=is_search,
     )
-
-    if is_search:
-        html += f"\n<!-- q={q} -->"
-
-    return html
 
 
 @app.route("/detail/<int:post_id>")

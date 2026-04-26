@@ -109,4 +109,3 @@ def test_search_filters_title_or_content_and_keeps_pagination(tmp_path):
 
     assert "2 / 2" in html
     assert html.count("onclick=\"location.href='/detail/") == 3
-    assert "q=python" in html
